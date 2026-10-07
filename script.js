@@ -59,3 +59,53 @@ document.getElementById("copy").addEventListener("click", async () => {
     status.textContent = "Select and copy the brief manually.";
   }
 });
+// Open gallery photos with their captions.
+(() => {
+  const viewer = document.getElementById('photo-viewer');
+  if (!viewer) return;
+
+  const fullImage = document.getElementById('photo-full');
+  const title = document.getElementById('photo-title');
+  const caption = document.getElementById('photo-caption');
+  const closeButton = viewer.querySelector('.photo-close');
+  let lastPhotoLink;
+
+  document.querySelectorAll('.gallery-card > a').forEach(link => {
+    link.addEventListener('click', event => {
+      event.preventDefault();
+
+      const card = link.closest('.gallery-card');
+      const thumbnail = link.querySelector('img');
+
+      fullImage.src = link.href;
+      fullImage.alt = thumbnail.alt;
+      title.textContent = card.querySelector('h3').textContent;
+      caption.textContent = card.querySelector('figcaption p').textContent;
+
+      lastPhotoLink = link;
+      viewer.showModal();
+    });
+  });
+
+  closeButton.addEventListener('click', () => viewer.close());
+
+  // Clicking outside the popup closes it.
+  viewer.addEventListener('click', event => {
+    if (event.target !== viewer) return;
+
+    const bounds = viewer.getBoundingClientRect();
+    if (
+      event.clientX < bounds.left ||
+      event.clientX > bounds.right ||
+      event.clientY < bounds.top ||
+      event.clientY > bounds.bottom
+    ) {
+      viewer.close();
+    }
+  });
+
+  viewer.addEventListener('close', () => {
+    fullImage.removeAttribute('src');
+    lastPhotoLink?.focus();
+  });
+})();
